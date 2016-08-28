@@ -5,13 +5,25 @@ var vscode_1 = require('vscode');
 var WebRequest = require('web-request');
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
+var flag = false;
 function activate(context) {
     // Use the console to output diagnostic information (console.log) and errors (console.error)
     // This line of code will only be executed once when your extension is activated
-    vscode_1.window.showInformationMessage('Congratulations, your extension "vscode-translate" is now active!');
     var translate = new Translate();
-    vscode_1.window.showInformationMessage('sdfsdafdfsdafd!');
     context.subscriptions.push(translate);
+    var disposable = vscode_1.commands.registerCommand('extension.translateon', function () {
+        // The code you place here will be executed every time your command is executed
+        // Display a message box to the user
+        if (!flag) {
+            vscode_1.window.showInformationMessage('Translate on!');
+            flag = true;
+        }
+        else {
+            vscode_1.window.showInformationMessage('Translate off!');
+            flag = false;
+        }
+    });
+    context.subscriptions.push(disposable);
     // Add to a list of disposables which are disposed when this extension is deactivated.
 }
 exports.activate = activate;
@@ -32,7 +44,7 @@ var Translate = (function () {
     }
     Translate.prototype.updateTranslate = function () {
         var editor = vscode_1.window.activeTextEditor;
-        if (!editor) {
+        if (!flag || !editor) {
             this._statusBarItem.hide();
             return;
         }
@@ -41,23 +53,19 @@ var Translate = (function () {
         this.dotranslate(str);
     };
     Translate.prototype.dotranslate = function (str) {
-        // let request = require('request');
         var statusBarItem = this._statusBarItem;
         WebRequest.get('http://fanyi.baidu.com/v2transapi?query=' + str + '&to=zh').then(function (TResult) {
             var res = JSON.parse(TResult.content.toString());
             if (res.error)
                 return;
+            // if (res.trans_result.data.length > 1) {
+            //     window.showInformationMessage(res.trans_result.data.map(v=>v.dst).join(' '))
+            // }
+            // else {
             statusBarItem.text = res.trans_result.data[0].dst;
-            vscode_1.window.showInformationMessage(res.trans_result.data[0].dst);
+            statusBarItem.show();
+            // }
         });
-        //     if (!error && response.statusCode == 200) {
-        //         var res = JSON.parse(body);
-        //         if (res.error) return;
-        //         statusBarItem.text = res.trans_result.data[0].dst;
-        //         window.showInformationMessage(res.trans_result.data[0].dst);
-        //     }
-        // })
-        // statusBarItem.text="sdfsf";
     };
     Translate.prototype.dispose = function () {
         this._statusBarItem.dispose();

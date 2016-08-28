@@ -4,15 +4,25 @@
     "description": "translate others language to Chinese",
     "version": "0.0.1",
     "publisher": "chun",
+    "license": "SEE LICENSE IN LICENSE.md",
     "engines": {
         "vscode": "^1.0.0"
     },
+    "icon": "img/t.png",
     "categories": [
         "Other"
     ],
     "activationEvents": [
         "*"
     ],
+    "contributes": {
+        "keybindings": [{
+            "command": "extension.translateon",
+            "key": "ctrl+t",
+            "mac": "cmd+t",
+            "when": "editorTextFocus"
+        }]
+    },
     "main": "./out/src/extension",
     "scripts": {
         "vscode:prepublish": "node ./node_modules/vscode/bin/compile",

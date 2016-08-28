@@ -5,12 +5,27 @@ import {window, commands, Disposable, ExtensionContext, StatusBarAlignment, Stat
 import * as WebRequest from 'web-request';
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
+let flag = false;
 export function activate(context: ExtensionContext) {
 
     // Use the console to output diagnostic information (console.log) and errors (console.error)
     // This line of code will only be executed once when your extension is activated
     let translate = new Translate();
     context.subscriptions.push(translate);
+    var disposable = commands.registerCommand('extension.translateon', () => {
+        // The code you place here will be executed every time your command is executed
+
+        // Display a message box to the user
+        if (!flag) {
+            window.showInformationMessage('Translate on!');
+            flag = true;
+        } else {
+            window.showInformationMessage('Translate off!');
+            flag = false;
+        }
+    });
+
+    context.subscriptions.push(disposable);
     // Add to a list of disposables which are disposed when this extension is deactivated.
 }
 
@@ -35,7 +50,7 @@ class Translate {
 
 
         let editor = window.activeTextEditor;
-        if (!editor) {
+        if (!flag || !editor) {
             this._statusBarItem.hide();
             return;
         }
@@ -46,12 +61,18 @@ class Translate {
 
     }
     private dotranslate(str) {
-        
+
         var statusBarItem = this._statusBarItem
-        WebRequest.get('http://fanyi.baidu.com/v2transapi?query=' + str + '&to=zh').then(function(TResult){
-           var res = JSON.parse(TResult.content.toString());
-           if (res.error) return;
-           statusBarItem.text = res.trans_result.data[0].dst;
+        WebRequest.get('http://fanyi.baidu.com/v2transapi?query=' + str + '&to=zh').then(function (TResult) {
+            var res = JSON.parse(TResult.content.toString());
+            if (res.error) return;
+            // if (res.trans_result.data.length > 1) {
+            //     window.showInformationMessage(res.trans_result.data.map(v=>v.dst).join(' '))
+            // }
+            // else {
+                statusBarItem.text = res.trans_result.data[0].dst;
+                statusBarItem.show();
+            // }
         });
     }
 
@@ -60,4 +81,3 @@ class Translate {
         this._disposable.dispose();
     }
 }
- 
