@@ -2,7 +2,7 @@
     "name": "vscode-translate",
     "displayName": "translate",
     "description": "translate others language to Chinese",
-    "version": "0.0.1",
+    "version": "0.0.2",
     "publisher": "chun",
     "license": "SEE LICENSE IN LICENSE.md",
     "engines": {
