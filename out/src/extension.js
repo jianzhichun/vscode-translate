@@ -6,17 +6,7 @@ var WebRequest = require('web-request');
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
 var _flag = false;
-var _proxy;
-function prompt(options) {
-    var dict = {
-        "string": { prompt: options },
-        "object": options
-    };
-    var type = typeof options;
-    options = dict[type] || {};
-    return vscode_1.window.showInputBox(options);
-}
-exports.prompt = prompt;
+var _proxy = vscode_1.workspace.getConfiguration('http').get('proxy');
 function activate(context) {
     // Use the console to output diagnostic information (console.log) and errors (console.error)
     // This line of code will only be executed once when your extension is activated
@@ -33,18 +23,6 @@ function activate(context) {
             vscode_1.window.showInformationMessage('Translate off!');
             _flag = false;
         }
-    });
-    context.subscriptions.push(disposable);
-    var disposable = vscode_1.commands.registerCommand('extension.translate.proxy', function () {
-        prompt({
-            value: '',
-            prompt: "Enter the proxy",
-            placeHolder: "for example：0.0.0.0:8080"
-        }).then(function (proxy) {
-            if (!proxy)
-                return;
-            _proxy = proxy;
-        });
     });
     context.subscriptions.push(disposable);
 }

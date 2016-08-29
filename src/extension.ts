@@ -6,19 +6,8 @@ import * as WebRequest from 'web-request';
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
 let _flag = false;
-let _proxy;
-export  function prompt(options) {
+let _proxy = workspace.getConfiguration('http').get<string>('proxy');
 
-    var dict = {
-        "string": { prompt: options },
-        "object": options
-    };
-
-    var type = typeof options;
-    options = dict[type] || {};
-
-    return window.showInputBox(options);
-}
 export function activate(context: ExtensionContext) {
 
     // Use the console to output diagnostic information (console.log) and errors (console.error)
@@ -37,20 +26,8 @@ export function activate(context: ExtensionContext) {
             _flag = false;
         }
     });
-
     context.subscriptions.push(disposable);
-    var disposable = commands.registerCommand('extension.translate.proxy', () => {
-        prompt({
-            value: '',
-            prompt: "Enter the proxy",
-            placeHolder: "for example：0.0.0.0:8080"
-        }).then(proxy=> {
-            if (!proxy) return;
-            _proxy = proxy;
-        });
-    });
 
-    context.subscriptions.push(disposable);
 }
 
 // this method is called when your extension is deactivated
