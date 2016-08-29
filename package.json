@@ -21,6 +21,10 @@
             "key": "ctrl+t",
             "mac": "cmd+t",
             "when": "editorTextFocus"
+        }],
+        "commands": [{
+            "command": "extension.translate.proxy",
+            "title": "translate set proxy"
         }]
     },
     "main": "./out/src/extension",

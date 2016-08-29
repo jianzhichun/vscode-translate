@@ -1,11 +1,24 @@
 'use strict';
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
-import {window, commands, Disposable, ExtensionContext, StatusBarAlignment, StatusBarItem, TextDocument} from 'vscode';
+import {window, workspace, commands, Disposable, ExtensionContext, StatusBarAlignment, StatusBarItem, TextDocument} from 'vscode';
 import * as WebRequest from 'web-request';
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
-let flag = false;
+let _flag = false;
+let _proxy;
+export  function prompt(options) {
+
+    var dict = {
+        "string": { prompt: options },
+        "object": options
+    };
+
+    var type = typeof options;
+    options = dict[type] || {};
+
+    return window.showInputBox(options);
+}
 export function activate(context: ExtensionContext) {
 
     // Use the console to output diagnostic information (console.log) and errors (console.error)
@@ -16,17 +29,28 @@ export function activate(context: ExtensionContext) {
         // The code you place here will be executed every time your command is executed
 
         // Display a message box to the user
-        if (!flag) {
+        if (!_flag) {
             window.showInformationMessage('Translate on!');
-            flag = true;
+            _flag = true;
         } else {
             window.showInformationMessage('Translate off!');
-            flag = false;
+            _flag = false;
         }
     });
 
     context.subscriptions.push(disposable);
-    // Add to a list of disposables which are disposed when this extension is deactivated.
+    var disposable = commands.registerCommand('extension.translate.proxy', () => {
+        prompt({
+            value: '',
+            prompt: "Enter the proxy",
+            placeHolder: "for example：0.0.0.0:8080"
+        }).then(proxy=> {
+            if (!proxy) return;
+            _proxy = proxy;
+        });
+    });
+
+    context.subscriptions.push(disposable);
 }
 
 // this method is called when your extension is deactivated
@@ -50,7 +74,7 @@ class Translate {
 
 
         let editor = window.activeTextEditor;
-        if (!flag || !editor) {
+        if (!_flag || !editor) {
             this._statusBarItem.hide();
             return;
         }
@@ -63,15 +87,15 @@ class Translate {
     private dotranslate(str) {
 
         var statusBarItem = this._statusBarItem
-        WebRequest.get('http://fanyi.baidu.com/v2transapi?query=' + str + '&to=zh').then(function (TResult) {
+        WebRequest.get('http://fanyi.baidu.com/v2transapi?query=' + str + '&to=zh', { "proxy": _proxy }).then(function (TResult) {
             var res = JSON.parse(TResult.content.toString());
             if (res.error) return;
             // if (res.trans_result.data.length > 1) {
             //     window.showInformationMessage(res.trans_result.data.map(v=>v.dst).join(' '))
             // }
             // else {
-                statusBarItem.text = res.trans_result.data[0].dst;
-                statusBarItem.show();
+            statusBarItem.text = res.trans_result.data[0].dst;
+            statusBarItem.show();
             // }
         });
     }

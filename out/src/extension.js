@@ -5,7 +5,18 @@ var vscode_1 = require('vscode');
 var WebRequest = require('web-request');
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
-var flag = false;
+var _flag = false;
+var _proxy;
+function prompt(options) {
+    var dict = {
+        "string": { prompt: options },
+        "object": options
+    };
+    var type = typeof options;
+    options = dict[type] || {};
+    return vscode_1.window.showInputBox(options);
+}
+exports.prompt = prompt;
 function activate(context) {
     // Use the console to output diagnostic information (console.log) and errors (console.error)
     // This line of code will only be executed once when your extension is activated
@@ -14,17 +25,28 @@ function activate(context) {
     var disposable = vscode_1.commands.registerCommand('extension.translateon', function () {
         // The code you place here will be executed every time your command is executed
         // Display a message box to the user
-        if (!flag) {
+        if (!_flag) {
             vscode_1.window.showInformationMessage('Translate on!');
-            flag = true;
+            _flag = true;
         }
         else {
             vscode_1.window.showInformationMessage('Translate off!');
-            flag = false;
+            _flag = false;
         }
     });
     context.subscriptions.push(disposable);
-    // Add to a list of disposables which are disposed when this extension is deactivated.
+    var disposable = vscode_1.commands.registerCommand('extension.translate.proxy', function () {
+        prompt({
+            value: '',
+            prompt: "Enter the proxy",
+            placeHolder: "for example：0.0.0.0:8080"
+        }).then(function (proxy) {
+            if (!proxy)
+                return;
+            _proxy = proxy;
+        });
+    });
+    context.subscriptions.push(disposable);
 }
 exports.activate = activate;
 // this method is called when your extension is deactivated
@@ -44,7 +66,7 @@ var Translate = (function () {
     }
     Translate.prototype.updateTranslate = function () {
         var editor = vscode_1.window.activeTextEditor;
-        if (!flag || !editor) {
+        if (!_flag || !editor) {
             this._statusBarItem.hide();
             return;
         }
@@ -54,7 +76,7 @@ var Translate = (function () {
     };
     Translate.prototype.dotranslate = function (str) {
         var statusBarItem = this._statusBarItem;
-        WebRequest.get('http://fanyi.baidu.com/v2transapi?query=' + str + '&to=zh').then(function (TResult) {
+        WebRequest.get('http://fanyi.baidu.com/v2transapi?query=' + str + '&to=zh', { "proxy": _proxy }).then(function (TResult) {
             var res = JSON.parse(TResult.content.toString());
             if (res.error)
                 return;
