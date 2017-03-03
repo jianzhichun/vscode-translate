@@ -1,18 +1,21 @@
 'use strict';
+Object.defineProperty(exports, "__esModule", { value: true });
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
-var vscode_1 = require('vscode');
-var WebRequest = require('web-request');
+const vscode_1 = require("vscode");
+const WebRequest = require("web-request");
+// import { DOMParser } from 'xmldom';
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
-var _flag = false;
-var _proxy = vscode_1.workspace.getConfiguration('http').get('proxy');
+let _flag = false;
+let _rs = '';
+// var parser = new DOMParser();
 function activate(context) {
     // Use the console to output diagnostic information (console.log) and errors (console.error)
     // This line of code will only be executed once when your extension is activated
-    var translate = new Translate();
+    let translate = new Translate();
     context.subscriptions.push(translate);
-    var disposable = vscode_1.commands.registerCommand('extension.translateon', function () {
+    var disposable = vscode_1.commands.registerCommand('extension.translateon', () => {
         // The code you place here will be executed every time your command is executed
         // Display a message box to the user
         if (!_flag) {
@@ -25,52 +28,75 @@ function activate(context) {
         }
     });
     context.subscriptions.push(disposable);
+    context.subscriptions.push(vscode_1.commands.registerCommand('extension.translateReplace', () => {
+        if (!_flag) {
+            return;
+        }
+        var editor = vscode_1.window.activeTextEditor;
+        var selection = editor.selection;
+        editor.edit(edit => edit.replace(selection, _rs));
+    }));
 }
 exports.activate = activate;
 // this method is called when your extension is deactivated
 function deactivate() {
 }
 exports.deactivate = deactivate;
-var Translate = (function () {
-    function Translate() {
+class Translate {
+    constructor() {
         if (!this._statusBarItem) {
             this._statusBarItem = vscode_1.window.createStatusBarItem(vscode_1.StatusBarAlignment.Left);
         }
-        var subscriptions = [];
+        let subscriptions = [];
         vscode_1.window.onDidChangeTextEditorSelection(this.updateTranslate, this, subscriptions);
-        this._disposable = vscode_1.Disposable.from.apply(vscode_1.Disposable, subscriptions);
+        this._disposable = vscode_1.Disposable.from(...subscriptions);
         this.updateTranslate();
         this._statusBarItem.show();
     }
-    Translate.prototype.updateTranslate = function () {
-        var editor = vscode_1.window.activeTextEditor;
+    updateTranslate() {
+        let cfg = vscode_1.workspace.getConfiguration();
+        var _proxy = String(cfg.get("http.proxy"));
+        var _api = String(cfg.get("translation.api"));
+        var _targetLanguage = String(cfg.get("translation.targetLanguage"));
+        var _fromLanguage = String(cfg.get("translation.fromLanguage"));
+        let editor = vscode_1.window.activeTextEditor;
         if (!_flag || !editor) {
             this._statusBarItem.hide();
             return;
         }
-        var doc = editor.document;
-        var str = doc.getText(editor.selection);
-        this.dotranslate(str);
-    };
-    Translate.prototype.dotranslate = function (str) {
+        let doc = editor.document;
+        let str = doc.getText(editor.selection);
+        this.dotranslate(encodeURIComponent(str), _proxy, _api, _targetLanguage, _fromLanguage);
+    }
+    dotranslate(str, _proxy, _api, _targetLanguage, _fromLanguage) {
         var statusBarItem = this._statusBarItem;
-        WebRequest.get('http://fanyi.baidu.com/v2transapi?query=' + str + '&to=zh', { "proxy": _proxy }).then(function (TResult) {
+        if (str.trim() == '')
+            return;
+        var translateStr = this.baiduTranslate(str, _targetLanguage, _fromLanguage);
+        WebRequest.get(translateStr, { "proxy": _proxy }).then(function (TResult) {
+            var rs = '';
+            // if (_api == 'baidu') {
             var res = JSON.parse(TResult.content.toString());
             if (res.error)
                 return;
-            // if (res.trans_result.data.length > 1) {
-            //     window.showInformationMessage(res.trans_result.data.map(v=>v.dst).join(' '))
+            rs = res.trans_result.data[0].dst;
+            // } else {
+            //     var domStr = TResult.content.toString()
+            //          ,dom = parser.parseFromString(domStr.substring(domStr.indexOf('<body dir'),domStr.lastIndexOf('</body>')+7));
             // }
-            // else {
-            statusBarItem.text = res.trans_result.data[0].dst;
+            statusBarItem.text = _rs = rs;
             statusBarItem.show();
-            // }
         });
-    };
-    Translate.prototype.dispose = function () {
+    }
+    baiduTranslate(str, _targetLanguage, _fromLanguage) {
+        return 'http://fanyi.baidu.com/v2transapi?query=' + str + (_fromLanguage ? '&from=' + _fromLanguage : '') + (_targetLanguage ? '&to=' + _targetLanguage : '');
+    }
+    googleTranslate(str, _targetLanguage, _fromLanguage) {
+        return 'https://translate.google.cn/#' + (_fromLanguage ? _fromLanguage : 'auto') + '/' + (_targetLanguage ? _targetLanguage : 'zh-CN') + '/' + str;
+    }
+    dispose() {
         this._statusBarItem.dispose();
         this._disposable.dispose();
-    };
-    return Translate;
-}());
+    }
+}
 //# sourceMappingURL=extension.js.map

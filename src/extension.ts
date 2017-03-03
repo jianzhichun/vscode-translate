@@ -1,12 +1,15 @@
 'use strict';
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
-import {window, workspace, commands, Disposable, ExtensionContext, StatusBarAlignment, StatusBarItem, TextDocument} from 'vscode';
+import { window, workspace, commands, Disposable, ExtensionContext, StatusBarAlignment, StatusBarItem, TextDocument } from 'vscode';
 import * as WebRequest from 'web-request';
+// import { DOMParser } from 'xmldom';
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
 let _flag = false;
-let _proxy = workspace.getConfiguration('http').get<string>('proxy');
+let _rs = '';
+// var parser = new DOMParser();
+
 
 export function activate(context: ExtensionContext) {
 
@@ -27,6 +30,16 @@ export function activate(context: ExtensionContext) {
         }
     });
     context.subscriptions.push(disposable);
+    context.subscriptions.push(commands.registerCommand('extension.translateReplace', () => {
+        if (!_flag) {
+            return;
+        }
+        var editor = window.activeTextEditor;
+        var selection = editor.selection;
+        editor.edit(edit =>
+            edit.replace(selection, _rs)
+        );
+    }));
 
 }
 
@@ -48,8 +61,11 @@ class Translate {
         this._statusBarItem.show();
     }
     public updateTranslate() {
-
-
+        let cfg = workspace.getConfiguration();
+        var _proxy = String(cfg.get("http.proxy"));
+        var _api = String(cfg.get("translation.api"));
+        var _targetLanguage = String(cfg.get("translation.targetLanguage"));
+        var _fromLanguage = String(cfg.get("translation.fromLanguage"));
         let editor = window.activeTextEditor;
         if (!_flag || !editor) {
             this._statusBarItem.hide();
@@ -58,24 +74,36 @@ class Translate {
 
         let doc = editor.document;
         let str = doc.getText(editor.selection)
-        this.dotranslate(str);
+        this.dotranslate(encodeURIComponent(str), _proxy, _api, _targetLanguage, _fromLanguage);
 
     }
-    private dotranslate(str) {
-
+    private dotranslate(str, _proxy, _api, _targetLanguage, _fromLanguage) {
         var statusBarItem = this._statusBarItem
-        WebRequest.get('http://fanyi.baidu.com/v2transapi?query=' + str + '&to=zh', { "proxy": _proxy }).then(function (TResult) {
-            var res = JSON.parse(TResult.content.toString());
-            if (res.error) return;
-            // if (res.trans_result.data.length > 1) {
-            //     window.showInformationMessage(res.trans_result.data.map(v=>v.dst).join(' '))
+        if (str.trim() == '')
+            return;
+        var translateStr = this.baiduTranslate(str, _targetLanguage, _fromLanguage);
+        WebRequest.get(translateStr, { "proxy": _proxy }).then(function (TResult) {
+            var rs = '';
+            // if (_api == 'baidu') {
+                var res = JSON.parse(TResult.content.toString());
+                if (res.error) return;
+                rs = res.trans_result.data[0].dst;
+            // } else {
+            //     var domStr = TResult.content.toString()
+            //          ,dom = parser.parseFromString(domStr.substring(domStr.indexOf('<body dir'),domStr.lastIndexOf('</body>')+7));
             // }
-            // else {
-            statusBarItem.text = res.trans_result.data[0].dst;
+            statusBarItem.text = _rs = rs;
             statusBarItem.show();
-            // }
         });
     }
+    private baiduTranslate(str, _targetLanguage, _fromLanguage) {
+        return 'http://fanyi.baidu.com/v2transapi?query=' + str + (_fromLanguage ? '&from=' + _fromLanguage : '') + (_targetLanguage ? '&to=' + _targetLanguage : '');
+
+    }
+    private googleTranslate(str, _targetLanguage, _fromLanguage) {
+        return 'https://translate.google.cn/#' + (_fromLanguage ? _fromLanguage : 'auto') + '/' + (_targetLanguage ? _targetLanguage : 'zh-CN') + '/' + str;
+    }
+
 
     dispose() {
         this._statusBarItem.dispose();

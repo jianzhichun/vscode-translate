@@ -14,6 +14,12 @@ press CTRL + t to turn off the function. <br />
 ![](https://raw.githubusercontent.com/jianzhichun/vscode-translate/master/img/translate_show.gif)
 
 it will read http.proxy at user-settings to get data by proxy. 
+<br />
+and you can set the user-settings to change from language and target language.
+![](https://raw.githubusercontent.com/jianzhichun/vscode-translate/master/img/config.png)
+<br />
+and you can press CTRL+SHIFT+R to replace selected-text to result after translation.
+![](https://raw.githubusercontent.com/jianzhichun/vscode-translate/master/img/replace_show.gif)
 
 ## Contribution.
 
@@ -28,3 +34,7 @@ it will read http.proxy at user-settings to get data by proxy.
     init 0.0.2 add proxy support 
 ### 2016/8/29
     update README.md
+### 2017/3/4
+    update to 0.0.3
+    add others translation support
+    add replace support
