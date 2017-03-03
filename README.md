@@ -4,7 +4,7 @@
 [![Install Count](http://vsmarketplacebadge.apphb.com/installs/chun.vscode-translate.svg)](https://marketplace.visualstudio.com/items?itemName=chun.vscode-translate)
 [![Open Issues](http://vsmarketplacebadge.apphb.com/rating/chun.vscode-translate.svg)](https://marketplace.visualstudio.com/items?itemName=chun.vscode-translate)
 
-## Translate the other languages to Chinese.
+## Translate languages.
 <br />
 press CTRL + t to turn on the translate then u can select the text and see the change of statusBar.
 press CTRL + t to turn off the function. <br />
@@ -15,11 +15,15 @@ press CTRL + t to turn off the function. <br />
 
 it will read http.proxy at user-settings to get data by proxy. 
 <br />
-and you can set the user-settings to change from language and target language.
+and you can set the user-settings to change from language and target language. 
 ![](https://raw.githubusercontent.com/jianzhichun/vscode-translate/master/img/config.png)
 <br />
 and you can press CTRL+SHIFT+R to replace selected-text to result after translation.
 ![](https://raw.githubusercontent.com/jianzhichun/vscode-translate/master/img/replace_show.gif)
+
+## Language List
+
+You can see [http://api.fanyi.baidu.com/api/trans/product/apidoc#languageList](http://api.fanyi.baidu.com/api/trans/product/apidoc#languageList)
 
 ## Contribution.
 
