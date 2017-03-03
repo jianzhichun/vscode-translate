@@ -39,6 +39,6 @@ You can see [http://api.fanyi.baidu.com/api/trans/product/apidoc#languageList](h
 ### 2016/8/29
     update README.md
 ### 2017/3/4
-    update to 0.0.3
+    update to 0.0.4
     add others translation support
     add replace support
