@@ -26,7 +26,7 @@ and as for translation.api only google&baidu provided (default is baidu)
 
 ![](https://raw.githubusercontent.com/jianzhichun/vscode-translate/master/img/replace_show.gif)
 
-## Language List (use google)
+## Language List (from google)
 
 You can see [https://cloud.google.com/translate/docs/languages](https://cloud.google.com/translate/docs/languages)
 
