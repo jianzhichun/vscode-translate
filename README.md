@@ -17,6 +17,8 @@ press CTRL + t to turn off the function. <br />
 
 <br />
 and you can set the user-settings to change from language and target language. 
+<br />
+and as for translation.api only google&baidu provided (default is baidu)
 ![](https://raw.githubusercontent.com/jianzhichun/vscode-translate/master/img/config.png)
 <br />
 
@@ -24,9 +26,9 @@ and you can set the user-settings to change from language and target language.
 
 ![](https://raw.githubusercontent.com/jianzhichun/vscode-translate/master/img/replace_show.gif)
 
-## Language List
+## Language List (use google)
 
-You can see [http://api.fanyi.baidu.com/api/trans/product/apidoc#languageList](http://api.fanyi.baidu.com/api/trans/product/apidoc#languageList)
+You can see [https://cloud.google.com/translate/docs/languages](https://cloud.google.com/translate/docs/languages)
 
 ## Contribution.
 
@@ -45,3 +47,6 @@ You can see [http://api.fanyi.baidu.com/api/trans/product/apidoc#languageList](h
     update to 0.0.4
     add others translation support
     add replace support
+### 2017/3/4
+    update to 0.0.5
+    add google translation optional
