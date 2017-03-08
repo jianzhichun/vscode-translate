@@ -82,7 +82,12 @@ class Translate {
         }
         let doc = editor.document, str = doc.getText(editor.selection);
         setTimeout(() => {
-            this.dotranslate(encodeURIComponent(str), _proxy, _api, _targetLanguage, _fromLanguage);
+            this.languageDetection(str, _fromLanguage).then((isReverse) => {
+                if (isReverse) {
+                    [_fromLanguage, _targetLanguage] = [_targetLanguage, _fromLanguage];
+                }
+                this.dotranslate(encodeURIComponent(str), _proxy, _api, _targetLanguage, _fromLanguage);
+            });
         }, 1000);
     }
     dotranslate(str, _proxy, _api, _targetLanguage, _fromLanguage) {
@@ -106,6 +111,19 @@ class Translate {
             }
             statusBarItem.text = _rs = rs;
             statusBarItem.show();
+        });
+    }
+    languageDetection(str, _fromLanguage) {
+        return WebRequest.post('http://fanyi.baidu.com/langdetect', { "formData": { "query": str } }).then(function (result) {
+            var res = JSON.parse(result.content);
+            if (res.error || res.lan == _fromLanguage) {
+                return false;
+            }
+            else {
+                return true;
+            }
+        }, function () {
+            return false;
         });
     }
     baiduTranslate(str, _targetLanguage, _fromLanguage) {
