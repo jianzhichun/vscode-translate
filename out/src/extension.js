@@ -74,26 +74,28 @@ class Translate {
         this._statusBarItem.show();
     }
     updateTranslate() {
-        var cfg = vscode_1.workspace.getConfiguration(), _proxy = String(cfg.get("http.proxy")), _api = String(cfg.get("translation.api")), _targetLanguage = String(cfg.get("translation.targetLanguage")), _fromLanguage = String(cfg.get("translation.fromLanguage"));
+        var cfg = vscode_1.workspace.getConfiguration(), _proxy = String(cfg.get("http.proxy")), _api = String(cfg.get("translation.api")), _targetLanguage = String(cfg.get("translation.targetLanguage")), _fromLanguage = String(cfg.get("translation.fromLanguage")), _languageDetection = Boolean(cfg.get("translation.languageDetection"));
         let editor = vscode_1.window.activeTextEditor;
         if (!_flag || !editor) {
             this._statusBarItem.hide();
             return;
         }
-        let doc = editor.document, str = doc.getText(editor.selection);
+        let doc = editor.document, str = doc.getText(editor.selection).trim();
+        if (str.trim() == '')
+            return;
         setTimeout(() => {
-            this.languageDetection(str, _fromLanguage).then((isReverse) => {
-                if (isReverse) {
-                    [_fromLanguage, _targetLanguage] = [_targetLanguage, _fromLanguage];
-                }
-                this.dotranslate(encodeURIComponent(str), _proxy, _api, _targetLanguage, _fromLanguage);
-            });
+            _languageDetection
+                ? this.languageDetection(str, _fromLanguage).then((isReverse) => {
+                    if (isReverse) {
+                        [_fromLanguage, _targetLanguage] = [_targetLanguage, _fromLanguage];
+                    }
+                    this.dotranslate(encodeURIComponent(str), _proxy, _api, _targetLanguage, _fromLanguage);
+                })
+                : this.dotranslate(encodeURIComponent(str), _proxy, _api, _targetLanguage, _fromLanguage);
         }, 1000);
     }
     dotranslate(str, _proxy, _api, _targetLanguage, _fromLanguage) {
         var statusBarItem = this._statusBarItem;
-        if (str.trim() == '')
-            return;
         var translateStr = _api == 'baidu' ? this.baiduTranslate(str, google2baidu[_targetLanguage], google2baidu[_fromLanguage]) : this.googleTranslate(str, _targetLanguage, _fromLanguage);
         WebRequest.get(translateStr, { "proxy": _proxy }).then(function (TResult) {
             var rs = '', res = JSON.parse(TResult.content.toString());
@@ -114,9 +116,9 @@ class Translate {
         });
     }
     languageDetection(str, _fromLanguage) {
-        return WebRequest.post('http://fanyi.baidu.com/langdetect', { "formData": { "query": str } }).then(function (result) {
+        return WebRequest.post('http://fanyi.baidu.com/langdetect', { "formData": { "query": str }, "timeout": 500 }).then(function (result) {
             var res = JSON.parse(result.content);
-            if (res.error || res.lan == _fromLanguage) {
+            if (res.error || res.lan == _fromLanguage || _fromLanguage == '') {
                 return false;
             }
             else {
