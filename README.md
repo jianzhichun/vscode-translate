@@ -163,5 +163,5 @@ You can see [https://cloud.google.com/translate/docs/languages](https://cloud.go
     update to 0.0.5
     add google translation optional
 ### 2017/3/9
-    update to 0.0.6
+    update to 0.1.0
     add language detection support
