@@ -6,7 +6,7 @@ const vscode_1 = require("vscode");
 const WebRequest = require("web-request");
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
-let _flag = false, _rs = '', google2baidu = {
+let isActive = false, translateResult = '', google2baidu = {
     en: 'en',
     th: 'th',
     ru: 'ru',
@@ -40,21 +40,21 @@ function activate(context) {
     // This line of code will only be executed once when your extension is activated
     context.subscriptions.push(new Translate());
     context.subscriptions.push(vscode_1.commands.registerCommand('extension.translateon', () => {
-        if (!_flag) {
+        if (!isActive) {
             vscode_1.window.showInformationMessage('Translate on!');
-            _flag = true;
+            isActive = true;
         }
         else {
             vscode_1.window.showInformationMessage('Translate off!');
-            _flag = false;
+            isActive = false;
         }
     }));
     context.subscriptions.push(vscode_1.commands.registerCommand('extension.translateReplace', () => {
-        if (!_flag) {
+        if (!isActive) {
             return;
         }
         var editor = vscode_1.window.activeTextEditor, selection = editor.selection;
-        editor.edit(edit => edit.replace(selection, _rs));
+        editor.edit(edit => edit.replace(selection, translateResult));
     }));
 }
 exports.activate = activate;
@@ -64,42 +64,42 @@ function deactivate() {
 exports.deactivate = deactivate;
 class Translate {
     constructor() {
-        if (!this._statusBarItem) {
-            this._statusBarItem = vscode_1.window.createStatusBarItem(vscode_1.StatusBarAlignment.Left);
+        if (!this.statusBarItem) {
+            this.statusBarItem = vscode_1.window.createStatusBarItem(vscode_1.StatusBarAlignment.Left);
         }
         let subscriptions = [];
         vscode_1.window.onDidChangeTextEditorSelection(this.updateTranslate, this, subscriptions);
-        this._disposable = vscode_1.Disposable.from(...subscriptions);
+        this.disposable = vscode_1.Disposable.from(...subscriptions);
         this.updateTranslate();
-        this._statusBarItem.show();
+        this.statusBarItem.show();
     }
     updateTranslate() {
-        var cfg = vscode_1.workspace.getConfiguration(), _proxy = String(cfg.get("http.proxy")), _api = String(cfg.get("translation.api")), _targetLanguage = String(cfg.get("translation.targetLanguage")), _fromLanguage = String(cfg.get("translation.fromLanguage")), _languageDetection = Boolean(cfg.get("translation.languageDetection"));
+        var cfg = vscode_1.workspace.getConfiguration(), proxy = String(cfg.get("http.proxy")), api = String(cfg.get("translation.api")), targetLanguage = String(cfg.get("translation.targetLanguage")), fromLanguage = String(cfg.get("translation.fromLanguage")), languageDetection = Boolean(cfg.get("translation.languageDetection"));
         let editor = vscode_1.window.activeTextEditor;
-        if (!_flag || !editor) {
-            this._statusBarItem.hide();
+        if (!isActive || !editor) {
+            this.statusBarItem.hide();
             return;
         }
         let doc = editor.document, str = doc.getText(editor.selection).trim();
         if (str.trim() == '')
             return;
         setTimeout(() => {
-            _languageDetection
-                ? this.languageDetection(str, _fromLanguage).then((isReverse) => {
+            languageDetection
+                ? this.languageDetection(str, fromLanguage).then((isReverse) => {
                     if (isReverse) {
-                        [_fromLanguage, _targetLanguage] = [_targetLanguage, _fromLanguage];
+                        [fromLanguage, targetLanguage] = [targetLanguage, fromLanguage];
                     }
-                    this.dotranslate(encodeURIComponent(str), _proxy, _api, _targetLanguage, _fromLanguage);
+                    this.dotranslate(encodeURIComponent(str), proxy, api, targetLanguage, fromLanguage);
                 })
-                : this.dotranslate(encodeURIComponent(str), _proxy, _api, _targetLanguage, _fromLanguage);
+                : this.dotranslate(encodeURIComponent(str), proxy, api, targetLanguage, fromLanguage);
         }, 1000);
     }
-    dotranslate(str, _proxy, _api, _targetLanguage, _fromLanguage) {
-        var statusBarItem = this._statusBarItem;
-        var translateStr = _api == 'baidu' ? this.baiduTranslate(str, google2baidu[_targetLanguage], google2baidu[_fromLanguage]) : this.googleTranslate(str, _targetLanguage, _fromLanguage);
-        WebRequest.get(translateStr, { "proxy": _proxy }).then(function (TResult) {
+    dotranslate(str, proxy, api, targetLanguage, fromLanguage) {
+        var statusBarItem = this.statusBarItem;
+        var translateStr = api == 'baidu' ? this.baiduTranslate(str, google2baidu[targetLanguage], google2baidu[fromLanguage]) : this.googleTranslate(str, targetLanguage, fromLanguage);
+        WebRequest.get(translateStr, { "proxy": proxy }).then(function (TResult) {
             var rs = '', res = JSON.parse(TResult.content.toString());
-            if (_api == 'baidu') {
+            if (api == 'baidu') {
                 if (res.error)
                     return;
                 rs = res.trans_result.data[0].dst;
@@ -111,14 +111,14 @@ class Translate {
                 });
                 rs = result.join(',');
             }
-            statusBarItem.text = _rs = rs;
+            statusBarItem.text = translateResult = rs;
             statusBarItem.show();
         });
     }
-    languageDetection(str, _fromLanguage) {
+    languageDetection(str, fromLanguage) {
         return WebRequest.post('http://fanyi.baidu.com/langdetect', { "formData": { "query": str }, "timeout": 500 }).then(function (result) {
             var res = JSON.parse(result.content);
-            if (res.error || res.lan == _fromLanguage || _fromLanguage == '') {
+            if (res.error || res.lan == fromLanguage || fromLanguage == '') {
                 return false;
             }
             else {
@@ -128,15 +128,15 @@ class Translate {
             return false;
         });
     }
-    baiduTranslate(str, _targetLanguage, _fromLanguage) {
-        return 'http://fanyi.baidu.com/v2transapi?query=' + str + (_fromLanguage ? '&from=' + _fromLanguage : '') + (_targetLanguage ? '&to=' + _targetLanguage : '');
+    baiduTranslate(str, targetLanguage, fromLanguage) {
+        return 'http://fanyi.baidu.com/v2transapi?query=' + str + (fromLanguage ? '&from=' + fromLanguage : '') + (targetLanguage ? '&to=' + targetLanguage : '');
     }
-    googleTranslate(str, _targetLanguage, _fromLanguage) {
-        return 'https://translate.google.cn/translate_a/single?client=gtx&sl=' + (_fromLanguage || 'auto') + '&tl=' + (_targetLanguage || 'auto') + '&hl=zh-CN&dt=t&dt=bd&ie=UTF-8&oe=UTF-8&dj=1&source=icon&q=' + str;
+    googleTranslate(str, targetLanguage, fromLanguage) {
+        return 'https://translate.google.cn/translate_a/single?client=gtx&sl=' + (fromLanguage || 'auto') + '&tl=' + (targetLanguage || 'auto') + '&hl=zh-CN&dt=t&dt=bd&ie=UTF-8&oe=UTF-8&dj=1&source=icon&q=' + str;
     }
     dispose() {
-        this._statusBarItem.dispose();
-        this._disposable.dispose();
+        this.statusBarItem.dispose();
+        this.disposable.dispose();
     }
 }
 //# sourceMappingURL=extension.js.map

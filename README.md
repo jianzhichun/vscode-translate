@@ -13,14 +13,15 @@ press CTRL + t to turn off the function. <br />
 
 ![](https://raw.githubusercontent.com/jianzhichun/vscode-translate/master/img/translate_show.gif)
 
-### it will read http.proxy at user-settings to get data by proxy. 
+#### it will read http.proxy at user-settings to get data by proxy. 
 
-<br />
-and you can set the user-settings to change from language and target language. 
-<br />
-and as for translation.api only google&baidu provided (default is baidu)
+#### and you can set the user-settings to change from language and target language. 
+
+#### as for translation.api only google&baidu provided (default is baidu)
+
+#### translation.languageDetection = true means do detection before language so that we could translate documents between from language and target language. (default is true) 
+
 ![](https://raw.githubusercontent.com/jianzhichun/vscode-translate/master/img/config.png)
-<br />
 
 ### And you can press CTRL+SHIFT+R to replace selected-text to result after translation.
 
@@ -142,6 +143,9 @@ You can see [https://cloud.google.com/translate/docs/languages](https://cloud.go
 
 [https://github.com/jianzhichun/vscode-translate](https://github.com/jianzhichun/vscode-translate)
 
+## Thanks
+
+[Jesse-Deng](https://github.com/Jesse-Deng)
 
 **Enjoy!**
 
@@ -158,3 +162,6 @@ You can see [https://cloud.google.com/translate/docs/languages](https://cloud.go
 ### 2017/3/4
     update to 0.0.5
     add google translation optional
+### 2017/3/9
+    update to 0.0.6
+    add language detection support
