@@ -87,8 +87,7 @@ class Translate {
             , _proxy = String(cfg.get("http.proxy"))
             , _api = String(cfg.get("translation.api"))
             , _targetLanguage = String(cfg.get("translation.targetLanguage"))
-            , _fromLanguage = String(cfg.get("translation.fromLanguage"))
-            , _languageDetection = Boolean(cfg.get("translation.languageDetection"));
+            , _fromLanguage = String(cfg.get("translation.fromLanguage"));
         let editor = window.activeTextEditor;
         if (!_flag || !editor) {
             this._statusBarItem.hide();
@@ -96,24 +95,22 @@ class Translate {
         }
 
         let doc = editor.document
-            , str = doc.getText(editor.selection).trim();
-        if (str.trim() == '')
-            return
+            , str = doc.getText(editor.selection)
         setTimeout(() => {
-            _languageDetection
-            ? this.languageDetection(str, _fromLanguage).then((isReverse)=>{
+            this.languageDetection(str, _fromLanguage).then((isReverse)=>{
                 if(isReverse){
                     [_fromLanguage,_targetLanguage] = [ _targetLanguage, _fromLanguage];
                 }
                 this.dotranslate(encodeURIComponent(str), _proxy, _api, _targetLanguage, _fromLanguage);
-            })
-            : this.dotranslate(encodeURIComponent(str), _proxy, _api, _targetLanguage, _fromLanguage);
+            });
         }, 1000);
 
 
     }
     private dotranslate(str, _proxy, _api, _targetLanguage, _fromLanguage) {
-        var statusBarItem = this._statusBarItem;
+        var statusBarItem = this._statusBarItem
+        if (str.trim() == '')
+            return;
         var translateStr = _api == 'baidu' ? this.baiduTranslate(str, google2baidu[_targetLanguage], google2baidu[_fromLanguage]) : this.googleTranslate(str, _targetLanguage, _fromLanguage);
         WebRequest.get(translateStr, { "proxy": _proxy }).then(function (TResult) {
             var rs = ''
@@ -133,9 +130,9 @@ class Translate {
         });
     }
     private languageDetection(str, _fromLanguage) {
-        return WebRequest.post('http://fanyi.baidu.com/langdetect',{ "formData":{ "query":str }, "timeout":500 } ).then(function (result){
+        return WebRequest.post('http://fanyi.baidu.com/langdetect',{ "formData":{ "query":str } } ).then(function (result){
             var res = JSON.parse(result.content);
-            if(res.error || res.lan == _fromLanguage || _fromLanguage == ''){
+            if(res.error||res.lan== _fromLanguage){
                 return false;
             }else{
                 return true;

@@ -49,11 +49,6 @@
           "type": "string",
           "default": "",
           "description": "target language"
-        },
-        "translation.languageDetection":{
-          "type": "boolean",
-          "default": true,
-          "description": "language detection"
         }
       }
     }
