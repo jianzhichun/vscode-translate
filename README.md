@@ -1,8 +1,8 @@
 # vscode-translate
 
-[![Current Version](http://vsmarketplacebadge.apphb.com/version/chun.vscode-translate.svg)](https://marketplace.visualstudio.com/items?itemName=chun.vscode-translate)
-[![Install Count](http://vsmarketplacebadge.apphb.com/installs/chun.vscode-translate.svg)](https://marketplace.visualstudio.com/items?itemName=chun.vscode-translate)
-[![Open Issues](http://vsmarketplacebadge.apphb.com/rating/chun.vscode-translate.svg)](https://marketplace.visualstudio.com/items?itemName=chun.vscode-translate)
+[![Current Version](https://vsmarketplacebadge.apphb.com/version/chun.vscode-translate.svg)](https://marketplace.visualstudio.com/items?itemName=chun.vscode-translate)
+[![Install Count](https://vsmarketplacebadge.apphb.com/installs/chun.vscode-translate.svg)](https://marketplace.visualstudio.com/items?itemName=chun.vscode-translate)
+[![Open Issues](https://vsmarketplacebadge.apphb.com/rating/chun.vscode-translate.svg)](https://marketplace.visualstudio.com/items?itemName=chun.vscode-translate)
 
 ## Translate languages.
 <br />
@@ -13,17 +13,13 @@ press CTRL + t to turn off the function. <br />
 
 ![](https://raw.githubusercontent.com/jianzhichun/vscode-translate/master/img/translate_show.gif)
 
-#### it will read http.proxy at user-settings to get data by proxy. 
+> as for translation.api only google&baidu provided (default is baidu)
 
-#### and you can set the user-settings to change from language and target language. 
-
-#### as for translation.api only google&baidu provided (default is baidu)
-
-#### translation.languageDetection = true means do detection before language so that we could translate documents between from language and target language. (default is true) 
+> translation.detection = true means do detection before language so that we could translate documents between from language and target language. (default is true) 
 
 ![](https://raw.githubusercontent.com/jianzhichun/vscode-translate/master/img/config.png)
 
-### And you can press CTRL+SHIFT+R to replace selected-text to result after translation.
+> And you can press CTRL+SHIFT+R to replace selected-text to result after translation.
 
 ![](https://raw.githubusercontent.com/jianzhichun/vscode-translate/master/img/replace_show.gif)
 
@@ -165,3 +161,5 @@ You can see [https://cloud.google.com/translate/docs/languages](https://cloud.go
 ### 2017/3/9
     update to 0.1.0
     add language detection support
+### 2018/5/30
+    update to 0.1.2
