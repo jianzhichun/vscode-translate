@@ -27,6 +27,7 @@ function activate(context) {
                     if (unrecursive) {
                         statusBarItem.text = text;
                         statusBarItem.show();
+                        return;
                     }
                     if (detection && iso === _targetLanguage && iso !== fromLanguage) {
                         translate(query, fromLanguage);

@@ -162,4 +162,4 @@ You can see [https://cloud.google.com/translate/docs/languages](https://cloud.go
     update to 0.1.0
     add language detection support
 ### 2018/5/30
-    update to 0.1.2
+    update to 0.1.3

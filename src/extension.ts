@@ -45,6 +45,7 @@ export function activate(context: ExtensionContext) {
                                 if (unrecursive) {
                                     statusBarItem.text = text;
                                     statusBarItem.show();
+                                    return;
                                 }
                                 if (detection && iso === _targetLanguage && iso !== fromLanguage) {
                                     translate(query, fromLanguage);
@@ -72,6 +73,7 @@ export function activate(context: ExtensionContext) {
         workspace.onDidChangeConfiguration(updateTranslator),
         // selection change -> translate
         window.onDidChangeTextEditorSelection(({ textEditor, selections: [selection,] }) => {
+            
             if (isActive && !selection.start.isEqual(selection.end)) {
                 clearTimeout(timer);
                 timer = setTimeout(() => translate(textEditor.document.getText(selection)), 1000);
