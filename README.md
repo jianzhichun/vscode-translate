@@ -62,3 +62,7 @@ You can see [https://cloud.google.com/translate/docs/languages](https://cloud.go
 ### 2018/5/30
     update to 0.1.4
     change translate interval to 200ms
+### 2018/5/30
+    update to 0.1.5
+    change translate interval to 100ms
+    update readme

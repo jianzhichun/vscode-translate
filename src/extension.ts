@@ -83,7 +83,7 @@ export function activate(context: ExtensionContext) {
 
             if (isActive && !selection.start.isEqual(selection.end)) {
                 clearTimeout(timer);
-                timer = setTimeout(() => translate(textEditor.document.getText(selection)), 200);
+                timer = setTimeout(() => translate(textEditor.document.getText(selection)), 100);
             }
         }),
         // commands

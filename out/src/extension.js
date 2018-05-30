@@ -63,7 +63,7 @@ function activate(context) {
     vscode_1.window.onDidChangeTextEditorSelection(({ textEditor, selections: [selection,] }) => {
         if (isActive && !selection.start.isEqual(selection.end)) {
             clearTimeout(timer);
-            timer = setTimeout(() => translate(textEditor.document.getText(selection)), 200);
+            timer = setTimeout(() => translate(textEditor.document.getText(selection)), 100);
         }
     }), 
     // commands
