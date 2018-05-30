@@ -507,6 +507,15 @@ google-translate-api-cn@^1.0.1:
     querystring "^0.2.0"
     safe-eval "^0.3.0"
 
+google-translate-api@^2.3.0:
+  version "2.3.0"
+  resolved "https://registry.yarnpkg.com/google-translate-api/-/google-translate-api-2.3.0.tgz#626730a123da0d57af3735dd707cda71cee919c7"
+  dependencies:
+    configstore "^2.0.0"
+    google-translate-token latest
+    got "^6.3.0"
+    safe-eval "^0.3.0"
+
 google-translate-token@latest:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/google-translate-token/-/google-translate-token-1.0.0.tgz#be943445786f00c3765dec31f490dac21228d3f8"

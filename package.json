@@ -2,7 +2,7 @@
     "name": "vscode-translate",
     "displayName": "translate",
     "description": "A vscode extension for translation",
-    "version": "0.1.3",
+    "version": "0.1.4",
     "license": "SEE LICENSE IN LICENSE.md",
     "publisher": "chun",
     "repository": "https://github.com/jianzhichun/vscode-translate.git",
@@ -44,8 +44,8 @@
             "properties": {
                 "translation.api": {
                     "type": "string",
-                    "default": "google",
-                    "description": "api for translation"
+                    "default": "google-cn",
+                    "description": "api for translation now support google-cn and google"
                 },
                 "translation.fromLanguage": {
                     "type": "string",
@@ -79,6 +79,7 @@
         "vscode": "^1.1.18"
     },
     "dependencies": {
+        "google-translate-api": "^2.3.0",
         "google-translate-api-cn": "^1.0.1",
         "humps": "^2.0.1"
     }

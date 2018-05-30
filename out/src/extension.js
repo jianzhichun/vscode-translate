@@ -3,7 +3,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 const vscode_1 = require("vscode");
-const googleTranslate = require("google-translate-api-cn");
+const googleTranslate = require("google-translate-api");
+const googleTranslateCN = require("google-translate-api-cn");
 const humps_1 = require("humps");
 const decamelizeQuery = (query) => humps_1.decamelize(humps_1.camelize(query), { split: /(?=[A-Z0-9])/, separator: ' ' });
 function activate(context) {
@@ -14,15 +15,19 @@ function activate(context) {
             return;
         let { translation: { api, targetLanguage, detection, fromLanguage } } = vscode_1.workspace.getConfiguration();
         switch (api) {
+            case "google-cn":
+            case "google":
             default:
-                translate = (query, _targetLanguage = targetLanguage, unrecursive) => googleTranslate(query, { to: _targetLanguage })
+                let gTranslate = api === "google" ? googleTranslate : googleTranslateCN;
+                translate = (query, _targetLanguage = targetLanguage, unrecursive) => gTranslate(query, { to: _targetLanguage })
                     .then(({ text, from: { text: { autoCorrected, value, didYouMean }, language: { iso, } }, }) => {
                     /*
-                    reverse -> translate(reverse) -> return;
-                    didYouMean -> len(value) > 5 && query === text
-                                    ?
-                                    translate(decamelize) -> return :
-                    update -> return
+                    unrecursive -> update;
+                    reverse -> translate(reverse);
+                    len(value) > 5 && query === text
+                    ?
+                    translate(decamelize) :
+                    update
                     */
                     if (unrecursive) {
                         statusBarItem.text = text;
@@ -30,7 +35,7 @@ function activate(context) {
                         return;
                     }
                     if (detection && iso === _targetLanguage && iso !== fromLanguage) {
-                        translate(query, fromLanguage);
+                        translate(query, fromLanguage, true);
                         return;
                     }
                     if (query.length > 5) {
@@ -38,8 +43,11 @@ function activate(context) {
                             vscode_1.window.showWarningMessage(`DidYouMean: ${value}`);
                         }
                         if (query === text) {
-                            translate(decamelizeQuery(query), _targetLanguage, true);
-                            return;
+                            let queryAfterDecamelize = decamelizeQuery(query);
+                            if (query !== queryAfterDecamelize) {
+                                translate(queryAfterDecamelize, _targetLanguage, true);
+                                return;
+                            }
                         }
                     }
                     statusBarItem.text = text;
@@ -55,7 +63,7 @@ function activate(context) {
     vscode_1.window.onDidChangeTextEditorSelection(({ textEditor, selections: [selection,] }) => {
         if (isActive && !selection.start.isEqual(selection.end)) {
             clearTimeout(timer);
-            timer = setTimeout(() => translate(textEditor.document.getText(selection)), 1000);
+            timer = setTimeout(() => translate(textEditor.document.getText(selection)), 200);
         }
     }), 
     // commands
@@ -64,6 +72,7 @@ function activate(context) {
             isActive = false;
             vscode_1.window.showInformationMessage('Translate off!');
             statusBarItem.dispose();
+            statusBarItem = null;
         }
         else {
             isActive = true;
@@ -74,7 +83,7 @@ function activate(context) {
     }), vscode_1.commands.registerCommand('extension.translateReplace', () => {
         if (isActive) {
             let { activeTextEditor } = vscode_1.window;
-            activeTextEditor.edit(edit => edit.replace(activeTextEditor.selection, statusBarItem.text));
+            activeTextEditor.edit((edit) => edit.replace(activeTextEditor.selection, statusBarItem.text));
         }
     }));
 }

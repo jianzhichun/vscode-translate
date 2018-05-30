@@ -163,3 +163,6 @@ You can see [https://cloud.google.com/translate/docs/languages](https://cloud.go
     add language detection support
 ### 2018/5/30
     update to 0.1.3
+### 2018/5/30
+    update to 0.1.4
+    change translate interval to 200ms
